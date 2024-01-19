@@ -19,7 +19,7 @@ const header = () => {
                 </Link>
             </div>
         </div>
-        <div className="mx-7 h-px bg-slate-900/5 mb-5"></div> {/* Partition Line */}
+        <div className="mx-7 h-px bg-gray-200 mb-5"></div> {/* Partition Line */}
     </div>
   )
 }

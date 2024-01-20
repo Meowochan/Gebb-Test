@@ -3,9 +3,10 @@ import Login from './enter.png'
 import Logo from './movies.png'
 import { Link } from 'react-router-dom'
 
-const header = ({ isLoggedIn }) => {
+const header = ({ isLoggedIn, isAdmin }) => {
     const handleLogout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('userType');
         window.location.href = "/login";
       };
 
@@ -17,6 +18,7 @@ const header = ({ isLoggedIn }) => {
                 <Link className='text-2xl m-auto' to='/'>GEBB Booking System</Link>
             </div>
             <div className='flex flex-wrap items-center'>
+                {isAdmin && (<Link to="/admin-panel" className='text-xl mr-10'>Panel</Link>)}
                 <Link to="/status" className='text-xl mr-10'>Status</Link>
                     {isLoggedIn ? (
                         <button onClick={handleLogout} className='btn flex'>

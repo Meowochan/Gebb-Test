@@ -24,6 +24,7 @@ const Login = () => {
           console.log(response.data); // Log the server response
           if (response.data.accessToken) {
             localStorage.setItem('token', response.data.accessToken);
+            localStorage.setItem('userType', response.data.userType);
             console.log('Token saved to localStorage');
           }
           window.location.href = "/";

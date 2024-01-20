@@ -18,6 +18,7 @@ mongoose.connect('mongodb+srv://admin:admin@gebbtest.r1wz7zn.mongodb.net/UsersDa
 const userSchema = new mongoose.Schema({
   username: String,
   password: String,
+  type: String
 });
 const User = mongoose.model('user', userSchema, 'user');
 
@@ -45,28 +46,24 @@ app.post('/login', async (req, res) => {
     }
 
     const accessToken = jwt.sign({ username: user.username, id: user._id }, secretKey);
-    res.json({ accessToken });
+    res.json({ accessToken, userType: user.type });
     console.log("someone logged in")
 });
 
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
-
     // Check if the username already exists
     const existingUser = await User.findOne({ username });
     if (existingUser) {
         return res.status(400).send('Username already exists');
     }
-
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-
     // Create a new user in the database
     const newUser = new User({
         username,
         password: hashedPassword,
     });
-
     try {
         await newUser.save();
         res.status(201).send('User registered successfully');
@@ -76,7 +73,6 @@ app.post('/register', async (req, res) => {
     }
 });
   
-
 app.get('/', (req, res) => {
   res.send('Hello from the backend!');
 });

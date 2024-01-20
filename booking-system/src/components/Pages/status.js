@@ -50,9 +50,9 @@ const Status = () => {
   ];
 
   return (
-    <div>
+    <div className='flex flex-col'>
       {mockupData.map((movie) => (
-        <div key={movie.Movie} class="collapse bg-base-200 my-3 mx-5">
+        <div key={movie.Movie} class="collapse bg-base-200 my-3 mx-auto w-[95%]">
           <input type="checkbox" /> 
           <div class="collapse-title text-xl font-medium flex">
             <h2>{movie.Movie}&nbsp;&nbsp;</h2>

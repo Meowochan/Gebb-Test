@@ -3,9 +3,11 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = 8000;
+app.use(cors());
 app.use(bodyParser.json());
 //Mongodb connection
 mongoose.connect('mongodb+srv://admin:admin@gebbtest.r1wz7zn.mongodb.net/UsersData', {

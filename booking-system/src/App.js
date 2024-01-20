@@ -1,4 +1,5 @@
 import Header from './components/Header/header'
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Status from './components/Pages/status';
 import Movies from './components/Pages/movies';
@@ -6,9 +7,20 @@ import Login from './components/Pages/login';
 import Register from './components/Pages/register';
 
 function App() {
+  const [isLoggedIn, setLoggedIn] = useState(false);
+
+    useEffect(() => {
+        // Check for authentication token in local storage or cookie
+        const token = localStorage.getItem('token');
+        if (token) {
+          // Token found, user is logged in
+          setLoggedIn(true);
+        }
+      }, []);
+
   return (
     <BrowserRouter>
-      <Header />
+      <Header isLoggedIn={isLoggedIn} />
       <Routes>
         <Route path='status' element={<Status/>}/>
         <Route path='' element={<Movies />}/>

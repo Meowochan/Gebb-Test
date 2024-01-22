@@ -18,7 +18,7 @@ function App() {
           // Token found, user is logged in
           setLoggedIn(true);
         }
-        if (adminStatus == "admin") {
+        if (adminStatus === "admin") {
           setAdmin(true);
           console.log(isAdmin)
         }
@@ -29,7 +29,7 @@ function App() {
       <Header isLoggedIn={isLoggedIn} isAdmin={isAdmin}/>
       <Routes>
         <Route path='status' element={<Status/>}/>
-        <Route path='' element={<Movies />}/>
+        <Route path='' element={<Movies isLoggedIn={isLoggedIn} />}/>
         <Route path='login' element={<Login/>}/>
         <Route path='register' element={<Register/>}/>
       </Routes>

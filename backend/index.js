@@ -21,6 +21,32 @@ const userSchema = new mongoose.Schema({
   type: String
 });
 const User = mongoose.model('user', userSchema, 'user');
+// Shows Time model
+const movieSchema = new mongoose.Schema({
+    title: String,
+    showtimes: [{
+      time: String,
+      theater: String,
+      seats: [{
+        row: String,
+        number: Number,
+        available: String
+      }]
+    }],
+    cover: String
+  });
+const Movie = mongoose.model('showTime', movieSchema, 'showTime');
+// List model
+const reservationSchema = new mongoose.Schema({
+  username: String,
+  time: String,
+  title: String,
+  seats: {
+    row: String,
+    number: Number
+  }
+});
+const Reservation = mongoose.model('reservation', reservationSchema, 'reservation');
 
 //Secret key for jwt
 const secretKey = 'your-secret-key';
@@ -71,6 +97,79 @@ app.post('/register', async (req, res) => {
         console.error(error);
         res.status(500).send('Internal Server Error');
     }
+});
+
+app.get('/movies', async (req, res) => {
+    try {
+      const movies = await Movie.find();
+      res.json(movies);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
+app.post('/reservation', async (req, res) => {
+  try {
+    const { token, time, title, row, number } = req.body;
+    const sendedToken = req.headers.authorization || req.body.token;
+    if (!sendedToken) {
+      return res.status(401).json({ error: 'Unauthorized: Token is missing' });
+    }
+    const decodedToken = jwt.verify(token, secretKey);
+    const { username, id } = decodedToken;
+    console.log('Username:', username);
+
+
+    const movie = await Movie.findOne({ title, 'showtimes.time': time });
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+
+    const showtime = movie.showtimes.find(st => st.time === time);
+    if (!showtime) {
+      return res.status(404).json({ error: 'Showtime not found' });
+    }
+
+    // Find the specific seat in the showtime
+    for (let i = 0; i < row.length; i++) {
+      const currentRow = row[i];
+      const currentNumber = parseInt(number[i]);
+
+      // Find the specific seat in the showtime
+      const seat = showtime.seats.find(s => s.row === currentRow && s.number === currentNumber);
+
+      if (!seat) {
+        return res.status(404).json({ error: `Seat not found for row ${currentRow} and number ${currentNumber}` });
+      }
+
+      // Check if the seat is available
+      if (seat.available !== 'avialable') {
+        return res.status(400).json({ error: `Seat for row ${currentRow} and number ${currentNumber} is already reserved` });
+      }
+
+      // Update the available status to 'reserved'
+      const reservation = new Reservation({
+        username,
+        time,
+        title,
+        seats : {
+            row: currentRow,
+            number: currentNumber
+        }
+      });
+      seat.available = 'reserved';
+      await reservation.save();
+    }
+
+    // Save the updated movie document
+    await movie.save();
+
+    res.json({ success: true, message: "Success" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
   
 app.get('/', (req, res) => {

@@ -1,9 +1,40 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import MovieCard from '../Moviescard/Moviecard';
+import Showtimes from '../Moviescard/Showtime';
 
-const movies = () => {
+
+const Movies = ({ isLoggedIn }) => {
+  const [movies, setMovies] = useState([]);
+  const [selectedMovie, setSelectedMovie] = useState(null);
+
+  useEffect(() => {
+    // Fetch movie data from your Express server
+    fetch('http://localhost:8000/movies')
+      .then(response => response.json())
+      .then(data => setMovies(data))
+      .catch(error => console.error('Error fetching movie data:', error));
+  }, []);
+
+  const handleMovieClick = (movie) => {
+    setSelectedMovie(movie);
+  };
+  const handleCloseShowtimes = () => {
+    setSelectedMovie(null);
+  };
+
   return (
-    <div>movies</div>
-  )
-}
+    <div>
+      <p className='text-3xl ml-10 mb-10'>Movie List</p>
+      <div className="flex">
+        {movies.map((movie, index) => (
+          <MovieCard key={index} movie={movie} onClick={handleMovieClick} />
+        ))}
+      </div>
+      {selectedMovie && (
+        <Showtimes movie={selectedMovie} onClose={handleCloseShowtimes} isLoggedIn={isLoggedIn}/>
+      )}
+    </div>
+  );
+};
 
-export default movies
+export default Movies

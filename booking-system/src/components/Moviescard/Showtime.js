@@ -74,9 +74,11 @@ const Showtimes = ({ movie, onClose, isLoggedIn }) => {
             {movie.showtimes
               .filter(showtime => new Date(showtime.time).toLocaleDateString('en-US', { day: 'numeric', month: 'short' }) === selectedDate)
               .map((showtime, index) => (
-                <button onClick={() => (isLoggedIn ? handleTimeClick(showtime) : null)} key={index} title={!isLoggedIn ? 'You must login first' : ''} className={`btn min-h-0 h-10 my-5 mr-4 ${selectedTime === showtime ? 'bg-green-500 text-white' : 'bg-gray-200 text-black'} ${!isLoggedIn ? 'btn-disabled cursor-not-allowed pointer-events-auto' : ''}`}>
+                <div className="tooltip my-5 mr-4" data-tip={!isLoggedIn && "Please Login First"}>
+                <button onClick={() => (isLoggedIn ? handleTimeClick(showtime) : null)} key={index} className={`btn min-h-0 h-10 ${selectedTime === showtime ? 'bg-green-500 text-white' : 'bg-gray-200 text-black'} ${!isLoggedIn ? 'btn-disabled cursor-not-allowed pointer-events-auto' : ''}`}>
                   <p>{new Date(showtime.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false })}</ p>
                 </button>
+                </div>
               ))}
               {/* Seats Selection */}
                {selectedTime && (

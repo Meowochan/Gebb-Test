@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MovieCard from '../Moviescard/Moviecard';
+import MovieCarousal from '../Moviescard/MovieCarousal';
 import Showtimes from '../Moviescard/Showtime';
 
 
@@ -24,7 +25,8 @@ const Movies = ({ isLoggedIn }) => {
 
   return (
     <div>
-      <p className='text-3xl ml-10 mb-10'>Movie List</p>
+      <MovieCarousal/>
+      <p className='text-3xl ml-10 mb-10 mt-10'>Now Showing</p>
       <div className="flex">
         {movies.map((movie, index) => (
           <MovieCard key={index} movie={movie} onClick={handleMovieClick} />

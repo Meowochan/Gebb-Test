@@ -14,8 +14,7 @@ const header = ({ isLoggedIn, isAdmin }) => {
     <div>
         <div className='max-w-screen flex flex-wrap items-center justify-between px-12 py-6'>
             <div className='flex justify-center align-middle text-center'>
-                <img src={Logo} className='h-14 inline-block mr-5' alt='Logo'/>
-                <Link className='text-2xl m-auto' to='/'>GEBB Booking System</Link>
+                <Link className='text-2xl m-auto' to='/'>Booking System</Link>
             </div>
             <div className='flex flex-wrap items-center'>
                 {isAdmin && (<Link to="/admin-panel" className='text-xl mr-10'>Panel</Link>)}

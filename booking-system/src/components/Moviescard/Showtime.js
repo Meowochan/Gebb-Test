@@ -48,7 +48,7 @@ const Showtimes = ({ movie, onClose, isLoggedIn }) => {
   }
 
   return (
-    <div className='h-screen w-screen absolute left-0 top-0 bg-opacity-70 z-10 bg-gray-500 flex'>
+    <div className='h-screen w-screen fixed  left-0 top-0 bg-opacity-70 z-10 bg-gray-500 flex'>
       <div className=' m-auto bg-white px-10 pt-3 pb-10 w-[40%] rounded-2xl'>
         <div>
           <button className='btn btn-error min-h-0 h-8 my-4 mr-8 hover:text-white' onClick={() => onClose()}>Close</button>

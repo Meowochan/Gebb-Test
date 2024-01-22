@@ -1,66 +1,61 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Sad from "./Sad.png"
 
 const Status = () => {
+  const [reservations, setReservations] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
+  const [cancelData, setCancelData] = useState(null);
+  const token = localStorage.getItem('token');
 
-  const handleCancelClick = () => {
+  const handleCancelClick = (token, time, row, number, title) => {
+    setCancelData({ token, time, row, number, title });
     setShowPopup(true);
   };
-
   const handleConfirmCancel = () => {
-    // Handle the cancellation logic here
+    const { token, time, row, number, title } = cancelData;
+    fetch('http://localhost:8000/cancelReservation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token, time, row, number, title }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        // Handle the response from the server as needed
+        console.log('Cancellation response:', data);
+        setReservations(data.reservations)
+      })
+      .catch(error => console.error('Error cancelling reservation:', error));
+
+    // Close the confirmation popup
     setShowPopup(false);
   };
-
   const handleCancelPopupClose = () => {
     setShowPopup(false);
   };
-
-  const mockupData = [
-    {
-      Movie: "Inception",
-      Seats: ["A1"],
-      Time: "14:30 - 16:30",
-      User: "JohnDoe"
-    },
-    {
-      Movie: "The Dark Knight",
-      Seats: ["B1"],
-      Time: "18:15 - 20:15",
-      User: "JohnDoe"
-    },
-    {
-      Movie: "Interstellar",
-      Seats: ["C1"],
-      Time: "20:30 - 22:30",
-      User: "JohnDoe"
-    },
-    {
-      Movie: "The Matrix",
-      Seats: ["D1"],
-      Time: "16:45 - 18:45",
-      User: "JohnDoe"
-    },
-    {
-      Movie: "Blade Runner",
-      Seats: ["E1"],
-      Time: "22:45 - 00:45",
-      User: "JohnDoe"
-    }
-  ];
+  
+  useEffect(() => {
+    // Fetch reservations for the current user
+    fetch(`http://localhost:8000/reservations/${token}`)
+      .then(response => response.json())
+      .then(data => setReservations(data))
+      .catch(error => console.error('Error fetching reservations:', error));
+  }, []);
 
   return (
-    <div className='flex flex-col'>
-      {mockupData.map((movie) => (
-        <div key={movie.Movie} class="collapse bg-base-200 my-3 mx-auto w-[95%]">
-          <input type="checkbox" /> 
-          <div class="collapse-title text-xl font-medium flex">
-            <h2>{movie.Movie}&nbsp;&nbsp;</h2>
-            <p>Seats:{movie.Seats}&nbsp;&nbsp;</p>
-            <p>Time: {movie.Time}</p>
+    <div>
+    {reservations && reservations.length > 0 ? (
+      <div className='flex flex-col'>
+      {reservations.map((reservation) => (
+        <div key={reservation._id} className=" bg-base-200 my-3 mx-auto w-[95%] p-4 rounded-2xl h-full">
+          <div className="text-xl font-medium flex items-center">
+            <h2>{reservation.title}</h2>
           </div>
-          <div class="collapse-content"> 
-            <div className='btn bg-red-400 min-h-[35px] h-2 hover:bg-red-600 hover:text-white' onClick={handleCancelClick}>Cancel</div>
+          <div className="relative pl-5"> {/* Indent for better visual hierarchy */}
+            <p>Time: {reservation.time}</p>
+            <p>Seats: {`${reservation.seats.row}${reservation.seats.number}`}</p>
+            <div className='absolute right-0 bottom-0 btn bg-red-400 min-h-[35px] h-2 hover:bg-red-600 hover:text-white' onClick={() =>handleCancelClick(token, reservation.time, reservation.seats.row, reservation.seats.number, reservation.title)}>Cancel</div>
           </div>
         </div>
       ))}
@@ -73,6 +68,14 @@ const Status = () => {
           </div>
         </div>
       )}
+    </div>
+    ) : (
+      <div className='flex justify-center align-middle'>
+        <p>Wow Go book some seats</p>
+        <img src={Sad} className='h-[25vh]'/>
+      </div>
+    )
+    }
     </div>
   );
 };

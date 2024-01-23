@@ -222,7 +222,62 @@ app.post('/reservation', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-  
+
+app.post('/adjust-reservation', async (req, res) => {
+  try {
+    const {time, title, row, number } = req.body;
+
+    const movie = await Movie.findOne({ title, 'showtimes.time': time });
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+
+    const showtime = movie.showtimes.find(st => st.time === time);
+    if (!showtime) {
+      return res.status(404).json({ error: 'Showtime not found' });
+    }
+
+    // Find the specific seat in the showtime
+    for (let i = 0; i < row.length; i++) {
+      const currentRow = row[i];
+      const currentNumber = parseInt(number[i]);
+
+      // Find the specific seat in the showtime
+      const seat = showtime.seats.find(s => s.row === currentRow && s.number === currentNumber);
+
+      if (!seat) {
+        return res.status(404).json({ error: `Seat not found for row ${currentRow} and number ${currentNumber}` });
+      }
+
+      // Check if the seat is closed
+      if (seat.available === 'closed') {
+        seat.available = 'avialable';
+      } else {
+
+        const reservation = await Reservation.findOne({
+          time,
+          'seats.row': currentRow,
+          'seats.number': currentNumber,
+          title,
+        });
+        if (reservation) {
+          await Reservation.deleteOne({ _id: reservation._id });
+        }
+
+        seat.available = 'closed';
+      }
+    }
+
+    // Save the updated movie document
+    await movie.save();
+
+    res.json({ success: true, message: "Success" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.get('/', (req, res) => {
   res.send('Hello from the backend!');
 });

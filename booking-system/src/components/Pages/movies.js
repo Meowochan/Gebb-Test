@@ -3,7 +3,6 @@ import MovieCard from '../Moviescard/Moviecard';
 import MovieCarousal from '../Moviescard/MovieCarousal';
 import Showtimes from '../Moviescard/Showtime';
 
-
 const Movies = ({ isLoggedIn }) => {
   const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);

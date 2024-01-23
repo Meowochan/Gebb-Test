@@ -17,7 +17,7 @@ const header = ({ isLoggedIn, isAdmin }) => {
                 <Link className='text-2xl m-auto' to='/'>Booking System</Link>
             </div>
             <div className='flex flex-wrap items-center'>
-                {isAdmin && (<Link to="/admin-panel" className='text-xl mr-10'>Panel</Link>)}
+                {isAdmin && (<Link to="/control-panel" className='text-xl mr-10'>Panel</Link>)}
                 <Link to="/status" className='text-xl mr-10'>Status</Link>
                     {isLoggedIn ? (
                         <button onClick={handleLogout} className='btn flex'>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Sad from "./Sad.png"
 
-const Status = () => {
+const Status = ({ isLoggedIn }) => {
   const [reservations, setReservations] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [cancelData, setCancelData] = useState(null);
@@ -34,7 +34,7 @@ const Status = () => {
   const handleCancelPopupClose = () => {
     setShowPopup(false);
   };
-  
+
   useEffect(() => {
     // Fetch reservations for the current user
     fetch(`http://localhost:8000/reservations/${token}`)
@@ -45,37 +45,45 @@ const Status = () => {
 
   return (
     <div>
-    {reservations && reservations.length > 0 ? (
-      <div className='flex flex-col'>
-      {reservations.map((reservation) => (
-        <div key={reservation._id} className=" bg-base-200 my-3 mx-auto w-[95%] p-4 rounded-2xl h-full">
-          <div className="text-xl font-medium flex items-center">
-            <h2>{reservation.title}</h2>
-          </div>
-          <div className="relative pl-5"> {/* Indent for better visual hierarchy */}
-            <p>Time: {reservation.time}</p>
-            <p>Seats: {`${reservation.seats.row}${reservation.seats.number}`}</p>
-            <div className='absolute right-0 bottom-0 btn bg-red-400 min-h-[35px] h-2 hover:bg-red-600 hover:text-white' onClick={() =>handleCancelClick(token, reservation.time, reservation.seats.row, reservation.seats.number, reservation.title)}>Cancel</div>
-          </div>
+      {isLoggedIn ? (
+        <div>
+          {reservations && reservations.length > 0 ? (
+            <div className='flex flex-col'>
+              {reservations.map((reservation) => (
+                <div key={reservation._id} className="bg-base-200 my-3 mx-auto w-[95%] p-4 rounded-2xl h-full">
+                  <div className="text-xl font-medium flex items-center">
+                    <h2>{reservation.title}</h2>
+                  </div>
+                  <div className="relative pl-5"> {/* Indent for better visual hierarchy */}
+                    <p>Time: {reservation.time}</p>
+                    <p>Seats: {`${reservation.seats.row}${reservation.seats.number}`}</p>
+                    <div className='absolute right-0 bottom-0 btn bg-red-400 min-h-[35px] h-2 hover:bg-red-600 hover:text-white' onClick={() => handleCancelClick(token, reservation.time, reservation.seats.row, reservation.seats.number, reservation.title)}>Cancel</div>
+                  </div>
+                </div>
+              ))}
+              {showPopup && (
+                <div className='fixed z-10 top-0 left-0 bg-opacity-70 w-screen h-screen bg-gray-500 flex'>
+                  <div className="modal-box m-auto h-fit">
+                    <p>Are you sure you want to cancel?</p>
+                    <button onClick={handleConfirmCancel} className='btn min-h-[35px] h-5 bg-red-400 hover:bg-red-600 hover:text-white'>Yes</button>
+                    <button onClick={handleCancelPopupClose} className='btn min-h-[35px] h-5 ml-5'>No</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className='flex flex-col items-center justify-center'>
+              <p>Wow! Go book some seats.</p>
+              <img src={Sad} alt="Sad Face" className='h-[25vh]' />
+            </div>
+          )}
         </div>
-      ))}
-      {showPopup && (
-        <div className='fixed z-10 top-0 left-0 bg-opacity-70 w-screen h-screen bg-gray-500 flex'>
-          <div className="modal-box m-auto h-fit">
-            <p>Are you sure you want to cancel?</p>
-            <button onClick={handleConfirmCancel} className='btn min-h-[35px] h-5 bg-red-400 hover:bg-red-600 hover:text-white'>Yes</button>
-            <button onClick={handleCancelPopupClose} className='btn min-h-[35px] h-5 ml-5'>No</button>
-          </div>
+      ) : (
+        <div>
+          {/* Render something else for non-logged in users */}
+          <p>Please log in to view reservations.</p>
         </div>
       )}
-    </div>
-    ) : (
-      <div className='flex justify-center align-middle'>
-        <p>Wow Go book some seats</p>
-        <img src={Sad} className='h-[25vh]'/>
-      </div>
-    )
-    }
     </div>
   );
 };

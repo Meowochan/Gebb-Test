@@ -2,6 +2,7 @@ import Header from './components/Header/header'
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Status from './components/Pages/status';
+import AdminPanel from './components/Pages/adminPanel';
 import Movies from './components/Pages/movies';
 import Login from './components/Pages/login';
 import Register from './components/Pages/register';
@@ -28,8 +29,9 @@ function App() {
     <BrowserRouter>
       <Header isLoggedIn={isLoggedIn} isAdmin={isAdmin}/>
       <Routes>
-        <Route path='status' element={<Status/>}/>
-        <Route path='' element={<Movies isLoggedIn={isLoggedIn} />}/>
+        <Route path='status' element={<Status isLoggedIn={isLoggedIn} />}/>
+        <Route path='control-panel' element={<AdminPanel isAdmin={isAdmin} />}/>
+        <Route path='' element={<Movies isLoggedIn={isLoggedIn}/>}/>
         <Route path='login' element={<Login/>}/>
         <Route path='register' element={<Register/>}/>
       </Routes>

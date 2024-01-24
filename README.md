@@ -33,6 +33,11 @@ node index.js
 ```
 The backend server will run at http://localhost:8000.
 
+## Admin Mode
+In order to access Admin Panel the users must login as admin by using the following username and password
+username : admin
+password : admin
+
 ## Features
 ### 1. Select Movie
 Users can browse and select movies from the list.

@@ -24,16 +24,19 @@ const Movies = ({ isLoggedIn }) => {
 
   return (
     <div>
-      <MovieCarousal/>
-      <p className='text-3xl ml-10 mb-10 mt-10'>Now Showing</p>
-      <div className="flex">
-        {movies.map((movie, index) => (
-          <MovieCard key={index} movie={movie} onClick={handleMovieClick} />
-        ))}
+      <div>
+        <MovieCarousal />
+        <p className='text-3xl ml-10 mb-10 mt-10 font-semibold border-b-2 w-fit pb-2 border-gray-400'>Now Showing</p>
+        <div className="flex flex-wrap gap-x-10 px-20 gap-y-20">
+          {movies.map((movie, index) => (
+            <MovieCard key={index} movie={movie} onClick={handleMovieClick} />
+          ))}
+        </div>
+        {selectedMovie && (
+          <Showtimes movie={selectedMovie} onClose={handleCloseShowtimes} isLoggedIn={isLoggedIn} />
+        )}
       </div>
-      {selectedMovie && (
-        <Showtimes movie={selectedMovie} onClose={handleCloseShowtimes} isLoggedIn={isLoggedIn}/>
-      )}
+      <div className='h-20'></div>{/* Spacing div */}
     </div>
   );
 };

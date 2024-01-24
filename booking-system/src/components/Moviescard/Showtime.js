@@ -37,13 +37,21 @@ const Showtimes = ({ movie, onClose, isLoggedIn }) => {
         time: localTime,
         title: movie.title,
         row: selectedSeats.map(seat => `${seat.row}`),
-        number : selectedSeats.map(seat => `${seat.number}`)
+        number: selectedSeats.map(seat => `${seat.number}`)
       });
 
       console.log(response.data); // Handle the response from the server as needed
       window.location.href = "/status";
     } catch (error) {
-      console.error('Error confirming reservation:', error);
+      if (error.response) {
+        if (error.response.status === 400) {
+          alert('Some of your seats has already been reserved. Slowpoke! Refresh the page and try again.')
+        } else if (error.response.status === 500) {
+          alert('Internal Server Error. Please try again later.');
+        } else {
+          console.error(`Server returned status code: ${error.response.status}`);
+        };
+      };
     }
   }
 
@@ -56,9 +64,9 @@ const Showtimes = ({ movie, onClose, isLoggedIn }) => {
         <p className='text-3xl font-bold'>{movie.title} : Show Time</p>
         <div className='flex mt-5'>
           {sortedDates.map((date, index) => (
-            <button 
-              className={`btn flex flex-col-reverse h-[70px] mr-5 gap-0 ${selectedDate === date ? 'bg-green-500 text-white' : 'bg-gray-200 text-black'}`} 
-              key={index} 
+            <button
+              className={`btn flex flex-col-reverse h-[70px] mr-5 gap-0 ${selectedDate === date ? 'bg-green-500 text-white' : 'bg-gray-200 text-black'}`}
+              key={index}
               onClick={() => handleDateClick(date)}
             >
               <span className="text-[10px]">{date.split(' ')[0]}</span>
@@ -66,7 +74,7 @@ const Showtimes = ({ movie, onClose, isLoggedIn }) => {
             </button>
           ))}
         </div>
-        
+
         {/* Time selection Section */}
         {selectedDate && (
           <div className="showtime-details">
@@ -75,48 +83,53 @@ const Showtimes = ({ movie, onClose, isLoggedIn }) => {
               .filter(showtime => new Date(showtime.time).toLocaleDateString('en-US', { day: 'numeric', month: 'short' }) === selectedDate)
               .map((showtime, index) => (
                 <div className="tooltip my-5 mr-4" data-tip={!isLoggedIn && "Please Login First"}>
-                <button onClick={() => (isLoggedIn ? handleTimeClick(showtime) : null)} key={index} className={`btn min-h-0 h-10 ${selectedTime === showtime ? 'bg-green-500 text-white' : 'bg-gray-200 text-black'} ${!isLoggedIn ? 'btn-disabled cursor-not-allowed pointer-events-auto' : ''}`}>
-                  <p>{new Date(showtime.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false })}</ p>
-                </button>
+                  <button onClick={() => (isLoggedIn ? handleTimeClick(showtime) : null)} key={index} className={`btn min-h-0 h-10 ${selectedTime === showtime ? 'bg-green-500 text-white' : 'bg-gray-200 text-black'} ${!isLoggedIn ? 'btn-disabled cursor-not-allowed pointer-events-auto' : ''}`}>
+                    <p>{new Date(showtime.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false })}</ p>
+                  </button>
                 </div>
               ))}
-              {/* Seats Selection */}
-               {selectedTime && (
-                  <div>
-                    <p>Selected Time: {new Date(selectedTime.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false })}</p>
-                    <p>Seats:</p>
-                    <div className='w-full btn bg-gray-300 pointer-events-none mb-5'> Screen </div>
-                    <div className="grid grid-cols-3 gap-4">
-                      {selectedTime.seats.map((seat, index) => (
-                        <div className="tooltip" data-tip={seat.available}>
-                          <button
-                            key={index}
-                            className={`btn w-full ${seat.available === 'closed' ? 'bg-gray-500' : (seat.available === 'reserved' ? 'bg-purple-500' : (selectedSeats.some(selectedSeat => selectedSeat.row === seat.row && selectedSeat.number === seat.number) ? 'bg-green-500' : 'bg-white border-solid border-[1px] border-gray-400'))}`}
-                            onClick={() => seat.available === 'avialable' ? selectSeats(seat) : null}
-                          >
-                            <p>{seat.row}{seat.number}</p>
-                          </button>
-                        </div>
-                      ))}
+            {/* Seats Selection */}
+            {selectedTime && (
+              <div>
+                <p>Selected Time: {new Date(selectedTime.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false })}</p>
+                <p>Seats:</p>
+                <div className='w-full btn bg-gray-300 pointer-events-none mb-5'> Screen </div>
+                <div className="grid grid-cols-3 gap-4">
+                  {selectedTime.seats.map((seat, index) => (
+                    <div className="tooltip" data-tip={seat.available}>
+                      <button
+                        key={index}
+                        className={`btn w-full ${seat.available === 'closed' ? 'bg-gray-500' : (seat.available === 'reserved' ? 'bg-purple-500' : (selectedSeats.some(selectedSeat => selectedSeat.row === seat.row && selectedSeat.number === seat.number) ? 'bg-green-500' : 'bg-white border-solid border-[1px] border-gray-400'))}`}
+                        onClick={() => seat.available === 'avialable' ? selectSeats(seat) : null}
+                      >
+                        <p>{seat.row}{seat.number}</p>
+                      </button>
                     </div>
-                    {selectedSeats.length > 0 && (
-                      <div>
-                        <p>Selected Seats:</p>
-                        {selectedSeats.map((selectedSeat, index) => (
-                          <span className='mr-2' key={index}>{selectedSeat.row}{selectedSeat.number}</span>
-                        ))}
-                        <button
-                          className='btn bg-green-500 text-white hover:text-black'
-                          onClick={confirmReservation}
-                        >
-                          Confirm
-                        </button>
-                      </div>
-                    )}
+                  ))}
+                </div>
+                <div className='flex justify-end mt-4 gap-x-4'>
+                  <div class="badge border-gray-400 p-3">default</div>
+                  <div class="badge bg-purple-500 p-3">Reserved</div>
+                  <div class="badge bg-gray-500 p-3">Closed</div>
+                </div>
+                {selectedSeats.length > 0 && (
+                  <div>
+                    <p>Selected Seats:</p>
+                    {selectedSeats.map((selectedSeat, index) => (
+                      <span className='mr-2' key={index}>{selectedSeat.row}{selectedSeat.number}</span>
+                    ))}
+                    <button
+                      className='btn bg-green-500 text-white hover:text-black'
+                      onClick={confirmReservation}
+                    >
+                      Confirm
+                    </button>
                   </div>
                 )}
+              </div>
+            )}
           </div>
-      )}
+        )}
 
       </div>
     </div>

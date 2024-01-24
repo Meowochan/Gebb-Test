@@ -1,0 +1,10 @@
+.underlineWhenHover{display:inline-block;}
+.underlineWhenHover:after{
+    display:block;
+    content: '';
+    border-bottom: solid 3px #019fb6;  
+    transform: scaleX(0);  
+    transition: transform 250ms ease-in-out;
+}
+.underlineWhenHover:hover:after { transform: scaleX(1); }
+.underlineWhenHover.fromLeft:after{  transform-origin:  0% 50%; }

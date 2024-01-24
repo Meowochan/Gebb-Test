@@ -22,7 +22,8 @@ const AdminPanel = () => {
 
     return (
         <div>
-            <div className="flex">
+            <p className='text-3xl mb-5 ml-10 border-b-2 w-fit pb-2 border-gray-400'>Control the seats availability here!</p>
+            <div className="flex flex-wrap gap-x-10 px-20 gap-y-20">
                 {movies.map((movie, index) => (
                     <AdminMoviecard key={index} movie={movie} onClick={handleMovieClick} />
                 ))}

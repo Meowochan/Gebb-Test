@@ -11,29 +11,29 @@ function App() {
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [isAdmin, setAdmin] = useState(false)
 
-    useEffect(() => {
-        // Check for authentication token in local storage or cookie
-        const token = localStorage.getItem('token');
-        const adminStatus = localStorage.getItem('userType')
-        if (token) {
-          // Token found, user is logged in
-          setLoggedIn(true);
-        }
-        if (adminStatus === "admin") {
-          setAdmin(true);
-          console.log(isAdmin)
-        }
-      }, []);
+  useEffect(() => {
+    // Check for authentication token in local storage or cookie
+    const token = localStorage.getItem('token');
+    const adminStatus = localStorage.getItem('userType')
+    if (token) {
+      // Token found, user is logged in
+      setLoggedIn(true);
+    }
+    if (adminStatus === "admin") {
+      setAdmin(true);
+      console.log(isAdmin)
+    }
+  }, []);
 
   return (
     <BrowserRouter>
-      <Header isLoggedIn={isLoggedIn} isAdmin={isAdmin}/>
+      <Header isLoggedIn={isLoggedIn} isAdmin={isAdmin} />
       <Routes>
-        <Route path='status' element={<Status isLoggedIn={isLoggedIn} />}/>
-        <Route path='control-panel' element={<AdminPanel isAdmin={isAdmin} />}/>
-        <Route path='' element={<Movies isLoggedIn={isLoggedIn}/>}/>
-        <Route path='login' element={<Login/>}/>
-        <Route path='register' element={<Register/>}/>
+        <Route path='status' element={<Status isLoggedIn={isLoggedIn} />} />
+        <Route path='control-panel' element={<AdminPanel isAdmin={isAdmin} />} />
+        <Route path='' element={<Movies isLoggedIn={isLoggedIn} />} />
+        <Route path='login' element={<Login />} />
+        <Route path='register' element={<Register />} />
       </Routes>
     </BrowserRouter>
   );

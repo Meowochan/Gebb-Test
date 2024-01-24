@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import Sad from "./Sad.png"
+import Sad from "./Assets/sad.png"
+import { Link } from 'react-router-dom'
 
 const Status = ({ isLoggedIn }) => {
   const [reservations, setReservations] = useState([]);
@@ -44,9 +45,9 @@ const Status = ({ isLoggedIn }) => {
   }, []);
 
   return (
-    <div>
+    <div className='h-screen'>
       {isLoggedIn ? (
-        <div>
+        <div className='h-[100%]'>
           {reservations && reservations.length > 0 ? (
             <div className='flex flex-col'>
               {reservations.map((reservation) => (
@@ -72,16 +73,17 @@ const Status = ({ isLoggedIn }) => {
               )}
             </div>
           ) : (
-            <div className='flex flex-col items-center justify-center'>
-              <p>Wow! Go book some seats.</p>
-              <img src={Sad} alt="Sad Face" className='h-[25vh]' />
+            <div className='flex flex-col items-center justify-center align-middle mt-[-12rem] h-[100%]'>
+              <img src={Sad} alt="Sad Face" className='h-64' />
+              <p className='mt-10 text-3xl font-bold text-gray-600'>Your Ticket list is Empty! Go book some seats.</p>
             </div>
           )}
         </div>
       ) : (
-        <div>
-          {/* Render something else for non-logged in users */}
-          <p>Please log in to view reservations.</p>
+        <div className='flex items-center justify-center align-middle mt-[-12rem] h-[100%]'>
+          <span className='mt-10 text-3xl font-bold text-gray-600'>Please&nbsp;</span>
+          <Link to='/login' className='mt-10 text-3xl font-bold text-cyan-600'>Login</Link>
+          <span className='mt-10 text-3xl font-bold text-gray-600'>&nbsp;to veiw your reservation list</span>
         </div>
       )}
     </div>

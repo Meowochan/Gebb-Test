@@ -23,18 +23,18 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('user', userSchema, 'user');
 // Shows Time model
 const movieSchema = new mongoose.Schema({
-    title: String,
-    showtimes: [{
-      time: String,
-      theater: String,
-      seats: [{
-        row: String,
-        number: Number,
-        available: String
-      }]
-    }],
-    cover: String
-  });
+  title: String,
+  showtimes: [{
+    time: String,
+    theater: String,
+    seats: [{
+      row: String,
+      number: Number,
+      available: String
+    }]
+  }],
+  cover: String
+});
 const Movie = mongoose.model('showTime', movieSchema, 'showTime');
 // List model
 const reservationSchema = new mongoose.Schema({
@@ -52,114 +52,114 @@ const Reservation = mongoose.model('reservation', reservationSchema, 'reservatio
 const secretKey = 'your-secret-key';
 
 app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
+  const { username, password } = req.body;
+  const user = await User.findOne({ username });
 
-    if (user == null || !(await bcrypt.compare(password, user.password))) {
-        return res.status(401).send('Invalid username or password');
-    }
+  if (user == null || !(await bcrypt.compare(password, user.password))) {
+    return res.status(401).send('Invalid username or password');
+  }
 
-    const accessToken = jwt.sign({ username: user.username, id: user._id }, secretKey);
-    res.json({ accessToken, userType: user.type });
-    console.log("someone logged in")
+  const accessToken = jwt.sign({ username: user.username, id: user._id }, secretKey);
+  res.json({ accessToken, userType: user.type });
+  console.log("someone logged in")
 });
 
 app.post('/register', async (req, res) => {
-    const { username, password } = req.body;
-    // Check if the username already exists
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-        return res.status(400).send('Username already exists');
-    }
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    // Create a new user in the database
-    const newUser = new User({
-        username,
-        password: hashedPassword,
-    });
-    try {
-        await newUser.save();
-        res.status(201).send('User registered successfully');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
-    }
+  const { username, password } = req.body;
+  // Check if the username already exists
+  const existingUser = await User.findOne({ username });
+  if (existingUser) {
+    return res.status(400).send('Username already exists');
+  }
+  // Hash the password
+  const hashedPassword = await bcrypt.hash(password, 10);
+  // Create a new user in the database
+  const newUser = new User({
+    username,
+    password: hashedPassword,
+  });
+  try {
+    await newUser.save();
+    res.status(201).send('User registered successfully');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.get('/movies', async (req, res) => {
-    try {
-      const movies = await Movie.find();
-      res.json(movies);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+  try {
+    const movies = await Movie.find();
+    res.json(movies);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/reservations/:token', async (req, res) => {
+  try {
+    const Sendedtoken = req.params.token;
+    const decodedToken = jwt.verify(Sendedtoken, secretKey);
+    const { username, id } = decodedToken;
+    // Fetch reservations for the given user ID
+    const reservations = await Reservation.find({ username });
+
+    res.json(reservations);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/cancelReservation', async (req, res) => {
+  try {
+    const { token, time, row, number, title } = req.body;
+
+    // Verify and decode the token to get the user information
+    const decodedToken = jwt.verify(token, secretKey);
+    const { username, id } = decodedToken;
+
+    // Check if the user has a reservation matching the provided data
+    const reservation = await Reservation.findOne({
+      username,
+      time,
+      'seats.row': row,
+      'seats.number': parseInt(number),
+      title,
+    });
+
+    if (!reservation) {
+      return res.status(404).json({ error: 'Reservation not found' });
     }
-  });
+    await Reservation.deleteOne({ _id: reservation._id });
 
-  app.get('/reservations/:token', async (req, res) => {
-    try {
-      const Sendedtoken = req.params.token;
-      const decodedToken = jwt.verify(Sendedtoken, secretKey);
-      const { username, id } = decodedToken;
-      // Fetch reservations for the given user ID
-      const reservations = await Reservation.find({ username });
-  
-      res.json(reservations);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    const movie = await Movie.findOne({ title, 'showtimes.time': time });
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found" });
     }
-  });
-
-  app.post('/cancelReservation', async (req, res) => {
-    try {
-      const { token, time, row, number, title } = req.body;
-  
-      // Verify and decode the token to get the user information
-      const decodedToken = jwt.verify(token, secretKey);
-      const { username, id } = decodedToken;
-  
-      // Check if the user has a reservation matching the provided data
-      const reservation = await Reservation.findOne({
-        username,
-        time,
-        'seats.row': row,
-        'seats.number': parseInt(number),
-        title,
-      });
-  
-      if (!reservation) {
-        return res.status(404).json({ error: 'Reservation not found' });
-      }
-      await Reservation.deleteOne({ _id: reservation._id });
-
-      const movie = await Movie.findOne({ title, 'showtimes.time': time });
-      if (!movie) {
-        return res.status(404).json({ error: "Movie not found" });
-      }
-      const showtime = movie.showtimes.find(st => st.time === time);
-      if (!showtime) {
-        return res.status(404).json({ error: 'Showtime not found' });
-      }
-      const seat = showtime.seats.find(s => s.row === row && s.number === parseInt(number));
-      if (!seat) {
-        return res.status(404).json({ error: `Seat not found for row ${row} and number ${number}` });
-      }
-      if (seat.available == 'avialable') {
-        return res.status(400).json({ error: `Seat for row ${row} and number ${number} is already available` });
-      }
-      seat.available = 'avialable';
-      await movie.save();
-
-      const reservations = await Reservation.find({ username });
-      res.json({ success: true, message: 'Reservation canceled successfully', reservations});
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    const showtime = movie.showtimes.find(st => st.time === time);
+    if (!showtime) {
+      return res.status(404).json({ error: 'Showtime not found' });
     }
-  });
-  
+    const seat = showtime.seats.find(s => s.row === row && s.number === parseInt(number));
+    if (!seat) {
+      return res.status(404).json({ error: `Seat not found for row ${row} and number ${number}` });
+    }
+    if (seat.available == 'avialable') {
+      return res.status(400).json({ error: `Seat for row ${row} and number ${number} is already available` });
+    }
+    seat.available = 'avialable';
+    await movie.save();
+
+    const reservations = await Reservation.find({ username });
+    res.json({ success: true, message: 'Reservation canceled successfully', reservations });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.post('/reservation', async (req, res) => {
   try {
     const { token, time, title, row, number } = req.body;
@@ -204,9 +204,9 @@ app.post('/reservation', async (req, res) => {
         username,
         time,
         title,
-        seats : {
-            row: currentRow,
-            number: currentNumber
+        seats: {
+          row: currentRow,
+          number: currentNumber
         }
       });
       seat.available = 'reserved';
@@ -225,7 +225,7 @@ app.post('/reservation', async (req, res) => {
 
 app.post('/adjust-reservation', async (req, res) => {
   try {
-    const {time, title, row, number } = req.body;
+    const { time, title, row, number } = req.body;
 
     const movie = await Movie.findOne({ title, 'showtimes.time': time });
     if (!movie) {
